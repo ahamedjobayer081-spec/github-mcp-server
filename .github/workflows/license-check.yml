@@ -23,8 +23,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       # Check out the actual PR branch so we can push changes back if needed
       - name: Check out PR branch
@@ -33,7 +38,7 @@ jobs:
         run: gh pr checkout ${{ github.event.pull_request.number }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "20"
           cache: "npm"
@@ -43,7 +48,7 @@ jobs:
         run: script/build-ui
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version-file: "go.mod"
 
@@ -77,7 +82,7 @@ jobs:
       - name: Check if already commented
         if: steps.changes.outcome == 'failure' && steps.push.outcome == 'failure'
         id: check_comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const { data: comments } = await github.rest.issues.listComments({
@@ -95,7 +100,7 @@ jobs:
 
       - name: Comment with instructions if cannot push
         if: steps.changes.outcome == 'failure' && steps.push.outcome == 'failure' && steps.check_comment.outputs.already_commented == 'false'
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             await github.rest.issues.createComment({
